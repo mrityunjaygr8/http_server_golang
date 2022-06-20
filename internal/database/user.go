@@ -19,6 +19,61 @@ func (c Client) CreateUser(email, password, name string, age int) (User, error) 
 
 	data.Users[email] = user
 
-	c.updateDB(data)
+	err = c.updateDB(data)
+	if err != nil {
+		return User{}, nil
+	}
 	return user, nil
+}
+
+func (c Client) UpdateUser(email, password, name string, age int) (User, error) {
+	data, err := c.readDB()
+	if err != nil {
+		return User{}, nil
+	}
+
+	user, ok := data.Users[email]
+	if !ok {
+		return User{}, fmt.Errorf("User with email, %s doesn't exists", email)
+	}
+
+	newUser := User{Email: email, Password: password, Name: name, Age: age, CreatedAt: user.CreatedAt}
+
+	data.Users[email] = newUser
+
+	err = c.updateDB(data)
+	if err != nil {
+		return User{}, nil
+	}
+	return newUser, nil
+}
+
+func (c Client) GetUser(email string) (User, error) {
+	data, err := c.readDB()
+	if err != nil {
+		return User{}, nil
+	}
+
+	user, ok := data.Users[email]
+	if !ok {
+		return User{}, fmt.Errorf("User with email, %s doesn't exists", email)
+	}
+
+	return user, nil
+}
+
+func (c Client) DeleteUser(email string) error {
+	data, err := c.readDB()
+	if err != nil {
+		return nil
+	}
+
+	_, ok := data.Users[email]
+	if !ok {
+		return fmt.Errorf("User with email, %s doesn't exists", email)
+	}
+
+	delete(data.Users, email)
+
+	return err
 }
