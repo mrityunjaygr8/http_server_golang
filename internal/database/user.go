@@ -8,7 +8,7 @@ import (
 func (c Client) CreateUser(email, password, name string, age int) (User, error) {
 	data, err := c.readDB()
 	if err != nil {
-		return User{}, nil
+		return User{}, err
 	}
 
 	if _, ok := data.Users[email]; ok {
@@ -21,7 +21,7 @@ func (c Client) CreateUser(email, password, name string, age int) (User, error) 
 
 	err = c.updateDB(data)
 	if err != nil {
-		return User{}, nil
+		return User{}, err
 	}
 	return user, nil
 }
@@ -29,7 +29,7 @@ func (c Client) CreateUser(email, password, name string, age int) (User, error) 
 func (c Client) UpdateUser(email, password, name string, age int) (User, error) {
 	data, err := c.readDB()
 	if err != nil {
-		return User{}, nil
+		return User{}, err
 	}
 
 	user, ok := data.Users[email]
@@ -43,7 +43,7 @@ func (c Client) UpdateUser(email, password, name string, age int) (User, error) 
 
 	err = c.updateDB(data)
 	if err != nil {
-		return User{}, nil
+		return User{}, err
 	}
 	return newUser, nil
 }
@@ -51,7 +51,7 @@ func (c Client) UpdateUser(email, password, name string, age int) (User, error) 
 func (c Client) GetUser(email string) (User, error) {
 	data, err := c.readDB()
 	if err != nil {
-		return User{}, nil
+		return User{}, err
 	}
 
 	user, ok := data.Users[email]
@@ -74,6 +74,9 @@ func (c Client) DeleteUser(email string) error {
 	}
 
 	delete(data.Users, email)
-
-	return err
+	err = c.updateDB(data)
+	if err != nil {
+		return err
+	}
+	return nil
 }
