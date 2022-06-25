@@ -26,3 +26,15 @@ func (a ApiConfig) EndpointUsersHandler(w http.ResponseWriter, r *http.Request) 
 		utils.RespondWithError(w, 404, errors.New("method is not supported"))
 	}
 }
+func (a ApiConfig) EndpointPostsHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		a.handlerGetPosts(w, r)
+	case http.MethodPost:
+		a.handlerCreatePost(w, r)
+	case http.MethodDelete:
+		a.handlerDeletePost(w, r)
+	default:
+		utils.RespondWithError(w, 404, errors.New("method is not supported"))
+	}
+}
