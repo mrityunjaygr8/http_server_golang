@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/mrtyunjaygr8/http_server_golang/api"
 	"github.com/mrtyunjaygr8/http_server_golang/internal/database"
 	"github.com/mrtyunjaygr8/http_server_golang/utils"
 )
@@ -13,9 +14,19 @@ import (
 func main() {
 	fmt.Println("yo")
 	const addr = "localhost:8080"
+	c := database.NewClient("db.json")
+	err := c.EnsureDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	apiCfg := api.ApiConfig{DbClient: c}
+
 	serveMux := http.NewServeMux()
 	serveMux.HandleFunc("/", testHandler)
 	serveMux.HandleFunc("/err", testErrorHandler)
+	serveMux.HandleFunc("/users", apiCfg.EndpointUsersHandler)
+	serveMux.HandleFunc("/users/", apiCfg.EndpointUsersHandler)
 
 	srv := http.Server{
 		Handler:      serveMux,
